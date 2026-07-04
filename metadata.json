@@ -1,0 +1,6 @@
+{
+  "name": "Exora POS",
+  "description": "Aplikasi Kasir (Point of Sale) modern, responsif, dan lengkap untuk mengelola produk, transaksi penjualan, riwayat struk belanja, dan laporan analisis performa toko secara real-time.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+/* ⚠️ GLOBAL PRINT MEDIA CONFIGURATION FOR THERMAL PRINTERS */
+@media print {
+  /* Set minimal/zero margin and hide standard browser header/footers */
+  @page {
+    margin: 0;
+  }
+  
+  /* Hide every normal screen-based layout element */
+  body, html {
+    background-color: #fff !important;
+    background-image: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 280px !important; /* Force standard thermal slip width */
+    height: auto !important;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  /* Make ONLY the thermal receipt slip elements printable and visible */
+  #thermal-receipt-slip,
+  #thermal-receipt-slip * {
+    visibility: visible !important;
+  }
+
+  #thermal-receipt-slip {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 280px !important; /* Force standard 58mm/80mm thermal receipt width */
+    max-width: 280px !important;
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 10px !important;
+    background-color: #fff !important;
+    color: #000 !important;
+    display: block !important;
+  }
+}
