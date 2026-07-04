@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { 
   ShoppingCart, Boxes, History, TrendingUp, Users, 
-  Settings, Menu, X, ArrowUpRight, Sparkles, AlertCircle, Lock, LogOut 
+  Settings, Menu, X, ArrowUpRight, Sparkles, AlertCircle, Lock, LogOut,
+  Download, Smartphone
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -23,6 +24,54 @@ export default function App() {
   // Navigation
   const [activeTab, setActiveTab] = useState<ActiveTab>('kasir');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // PWA installation promoter state
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showInstallBtn, setShowInstallBtn] = useState(false);
+  const [isIOSDevice, setIsIOSDevice] = useState(false);
+  const [isAppStandalone, setIsAppStandalone] = useState(false);
+
+  // Detect PWA status and handle events
+  useEffect(() => {
+    // Detect iOS
+    const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    setIsIOSDevice(ios);
+
+    // Detect standalone mode
+    const standalone = window.matchMedia('(display-mode: standalone)').matches || 
+                       (navigator as any).standalone === true;
+    setIsAppStandalone(standalone);
+
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstallBtn(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    // Track successful install
+    window.addEventListener('appinstalled', () => {
+      console.log('Exora POS installed successfully!');
+      setShowInstallBtn(false);
+      setDeferredPrompt(null);
+    });
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const triggerPWAInstall = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`PWA install outcome: ${outcome}`);
+    if (outcome === 'accepted') {
+      setShowInstallBtn(false);
+      setDeferredPrompt(null);
+    }
+  };
 
   // Operator Sessions
   const [userSession, setUserSession] = useState<UserSession | null>(() => {
@@ -280,6 +329,31 @@ export default function App() {
               </button>
             );
           })}
+
+          {/* PWA Promo Button inside scrolling sidebar */}
+          {(showInstallBtn || (isIOSDevice && !isAppStandalone)) && (
+            <div className="mt-4 p-3.5 bg-slate-800/40 border border-slate-800 rounded-xl mx-1 text-left">
+              <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest block mb-1">Aplikasi Kasir APK</span>
+              <p className="text-[10px] text-slate-400 mb-2.5 font-medium leading-relaxed">
+                {isIOSDevice 
+                  ? "Instal di iPhone Anda untuk pengalaman kasir layar penuh." 
+                  : "Pasang aplikasi Exora POS langsung ke HP atau Laptop Anda secara instan."}
+              </p>
+              {isIOSDevice ? (
+                <div className="text-[9px] text-slate-300 font-bold bg-slate-900/65 p-2 rounded-lg border border-slate-800/50 leading-relaxed">
+                  Tekan tombol <span className="text-white font-black">Share 📤</span> di Safari, lalu pilih <span className="text-emerald-400 font-black">"Tambah ke Layar Utama"</span>.
+                </div>
+              ) : (
+                <button
+                  onClick={triggerPWAInstall}
+                  className="w-full py-1.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[11px] font-extrabold transition-all flex items-center justify-center gap-1.5 shadow-md cursor-pointer select-none"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  Instal Aplikasi
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Operator status & Lock trigger */}
@@ -369,6 +443,31 @@ export default function App() {
                   </button>
                 );
               })}
+
+              {/* PWA Promo for Mobile Drawer */}
+              {(showInstallBtn || (isIOSDevice && !isAppStandalone)) && (
+                <div className="mt-4 p-3 bg-slate-800/40 border border-slate-800 rounded-xl text-left">
+                  <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest block mb-0.5">Aplikasi APK</span>
+                  <p className="text-[10px] text-slate-400 mb-2 leading-relaxed">
+                    {isIOSDevice 
+                      ? "Pasang di Home Screen iPhone Anda." 
+                      : "Instal aplikasi Exora POS ke HP Anda secara langsung."}
+                  </p>
+                  {isIOSDevice ? (
+                    <div className="text-[9px] text-slate-300 font-bold bg-slate-900/60 p-2 rounded-lg leading-relaxed">
+                      Tekan tombol <span className="text-white font-black">Share 📤</span> di browser Safari, lalu pilih <span className="text-emerald-400 font-black">\"Tambah ke Layar Utama\"</span>.
+                    </div>
+                  ) : (
+                    <button
+                      onClick={triggerPWAInstall}
+                      className="w-full py-1.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[10px] font-extrabold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <Download className="h-3.5 w-3.5" />
+                      Instal Aplikasi Sekarang
+                    </button>
+                  )}
+                </div>
+              )}
 
               <div className="border-t border-slate-800/60 mt-auto mb-6 pt-3 flex flex-col gap-2">
                 <div className="px-3.5 py-2 flex items-center justify-between text-xs text-slate-400">
