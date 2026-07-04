@@ -29,6 +29,7 @@ export default function KasirView({
   onRefreshProducts,
 }: KasirViewProps) {
   // States
+  const [mobileSubTab, setMobileSubTab] = useState<'produk' | 'keranjang'>('produk');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Semua');
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -366,9 +367,42 @@ export default function KasirView({
   };
 
   return (
-    <div className="flex flex-col lg:flex-row h-full gap-5">
-      {/* LEFT PORTION: Products Directory */}
-      <div className="flex-1 flex flex-col min-w-0" id="kasir-register-panel">
+    <div className="flex flex-col h-full gap-3 md:gap-5 overflow-hidden">
+      {/* Mobile Sub-Tab Toggle (Only visible on mobile/tablet) */}
+      <div className="lg:hidden flex border border-slate-150 bg-white p-1 gap-1 rounded-xl shadow-xs shrink-0 select-none">
+        <button
+          type="button"
+          onClick={() => setMobileSubTab('produk')}
+          className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+            mobileSubTab === 'produk'
+              ? 'bg-emerald-600 text-white shadow-sm'
+              : 'text-slate-500 hover:text-slate-850'
+          }`}
+        >
+          <span>Daftar Produk</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileSubTab('keranjang')}
+          className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+            mobileSubTab === 'keranjang'
+              ? 'bg-emerald-600 text-white shadow-sm'
+              : 'text-slate-500 hover:text-slate-850'
+          }`}
+        >
+          <ShoppingCart className="h-3.5 w-3.5" />
+          <span>Keranjang Belanja</span>
+          {cart.length > 0 && (
+            <span className="bg-red-500 text-white text-[10px] font-black h-4.5 min-w-4.5 px-1 flex items-center justify-center rounded-full">
+              {cart.reduce((sum, item) => sum + item.quantity, 0)}
+            </span>
+          )}
+        </button>
+      </div>
+
+      <div className="flex flex-col lg:flex-row flex-1 h-full gap-5 overflow-hidden">
+        {/* LEFT PORTION: Products Directory */}
+        <div className={`flex-1 flex flex-col min-w-0 ${mobileSubTab === 'produk' ? 'flex' : 'hidden lg:flex'}`} id="kasir-register-panel">
         
         {/* Cashier Shift Info Bar */}
         <div className={`mb-3 p-3.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs transition-all ${
@@ -555,7 +589,7 @@ export default function KasirView({
 
       {/* RIGHT PORTION: Register Active Basket (Cart) */}
       <div 
-        className="w-full lg:w-96 flex flex-col bg-white border border-slate-150 rounded-xl overflow-hidden shadow-xs"
+        className={`w-full lg:w-96 flex flex-col bg-white border border-slate-150 rounded-xl overflow-hidden shadow-xs ${mobileSubTab === 'keranjang' ? 'flex' : 'hidden lg:flex'}`}
         id="kasir-cart-panel"
       >
         {/* Cart Header */}
@@ -908,6 +942,34 @@ export default function KasirView({
           </button>
         </div>
       </div>
+
+      </div>
+
+      {/* Floating Bottom Cart Bar for Mobile when browsing products */}
+      {cart.length > 0 && mobileSubTab === 'produk' && (
+        <div className="lg:hidden fixed bottom-4 inset-x-4 z-40 bg-slate-900 text-white p-3 border border-slate-800 rounded-2xl shadow-xl flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="h-9 w-9 rounded-xl bg-emerald-700 flex items-center justify-center relative">
+              <ShoppingCart className="h-4 w-4 text-emerald-100" />
+              <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-black h-4.5 min-w-4.5 px-1 flex items-center justify-center rounded-full">
+                {cart.reduce((sum, item) => sum + item.quantity, 0)}
+              </span>
+            </div>
+            <div className="text-left">
+              <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider leading-none mb-1">KERANJANG</p>
+              <p className="text-xs font-bold font-mono">{formatCurrency(totals.total)}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setMobileSubTab('keranjang')}
+            className="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-xl text-xs font-extrabold flex items-center gap-1 shadow-md transition-all active:scale-95 cursor-pointer"
+          >
+            Lihat Keranjang
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      )}
 
       {/* MODAL CHECKOUT & PAYMENT INCOMING */}
       <AnimatePresence>
