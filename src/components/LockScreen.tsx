@@ -151,7 +151,7 @@ export default function LockScreen({ settings, onLoginSuccess }: LockScreenProps
           </div>
 
           <p className="text-sm font-bold text-slate-300">Masukkan PIN Operator</p>
-          <p className="text-[10.5px] text-slate-500 mt-1">Default PIN: Owner <span className="font-bold text-emerald-500">1234</span> | Kasir <span className="font-bold text-emerald-500">0000</span></p>
+          <p className="text-[10.5px] text-slate-500 mt-1">Silakan masukkan PIN akses Anda</p>
 
           {/* Dots Indicator */}
           <div className="flex gap-4 h-6 items-center my-6">
